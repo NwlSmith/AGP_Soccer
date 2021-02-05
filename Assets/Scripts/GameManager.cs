@@ -7,22 +7,27 @@ public static class ServicesLocator
     public static GameManager gameManager { get; private set; }
     public static AILifecycleManager aILifecycleManager { get; private set; }
     public static Transform pawnHolder { get; private set; }
-    public static GameObject ball { get; private set; }
+    public static Rigidbody ball { get; private set; }
 
+    public static void InitializeServices(GameManager gm)
+    {
+        ServicesLocator.gameManager = gm;
+        ServicesLocator.aILifecycleManager = new AILifecycleManager();
+    }
 }
 
 public class AILifecycleManager
 {
-
+    /*
     [SerializeField] private Transform[] pawnStartPositions;
-    [SerializeField] private Pawn pawnPrefab;
-    [SerializeField] private Pawn[] pawns;
+    [SerializeField] private Pawn pawnPrefab;*/
+    private Pawn[] pawns;
 
     public void Start()
     {
-        foreach (Transform trans in pawnStartPositions)
+        foreach (Transform trans in ServicesLocator.gameManager.pawnStartPositions)
         {
-            Pawn newPawn = Object.Instantiate(pawnPrefab, trans.position, trans.rotation, ServicesLocator.pawnHolder);
+            Pawn newPawn = Object.Instantiate(ServicesLocator.gameManager.pawnPrefab, trans.position, trans.rotation, ServicesLocator.pawnHolder);
         }
     }
 
@@ -32,14 +37,17 @@ public class AILifecycleManager
         {
             // Move toward ball.
             if (!pawn.isPlayer)
-                pawn.Move(CalculateAIMovement(pawn));
+                pawn.AIMove(CalculateAIMovement(pawn));
         }
     }
 
     private Vector3 CalculateAIMovement(Pawn pawn)
     {
-        Vector3 directionVector = (ServicesLocator.ball.transform.position - pawn.transform.position).normalized;
-        return directionVector * pawn.speed * Time.deltaTime;
+        // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
+        Vector3 directionVector = ServicesLocator.ball.position - pawn.transform.position;
+        directionVector.Normalize();
+        directionVector.y = 1;
+        return directionVector;
     }
 }
 
@@ -48,6 +56,9 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance = null;
 
+    public Transform[] pawnStartPositions;
+    public Pawn pawnPrefab;
+
     private void Awake()
     {
         // Ensure that there is only one instance of the ServiceLocator.
@@ -55,17 +66,19 @@ public class GameManager : MonoBehaviour
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
+
+        ServicesLocator.InitializeServices(this);
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        ServicesLocator.aILifecycleManager.Start();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        ServicesLocator.aILifecycleManager.Update();
     }
 }
