@@ -434,6 +434,7 @@ MonoBehaviour:
   - {fileID: 1030904203}
   - {fileID: 1608291980}
   pawnPrefab: {fileID: 5953310342104923278, guid: d51221000e43f66469f710ba05f84f58, type: 3}
+  ball: {fileID: 751037533}
 --- !u!4 &315832502
 Transform:
   m_ObjectHideFlags: 0
@@ -442,7 +443,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 315832500}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.9677474, y: -9.408338, z: 15.168907}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

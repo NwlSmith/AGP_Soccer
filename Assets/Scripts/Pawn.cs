@@ -4,16 +4,29 @@ using UnityEngine;
 
 public class Pawn : MonoBehaviour
 {
-
+    /* maybe make a struct like this?
+    private struct Stats
+    {
+        [SerializeField] private float movementForce = 20f;
+        [SerializeField] private float kickForceHorizontal = 10f;
+        [SerializeField] private float kickForceVertical = 2f;
+    }*/
     public bool isPlayer = false;
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private float movementForce = 20f;
     [SerializeField] private float kickForceHorizontal = 10f;
     [SerializeField] private float kickForceVertical = 2f;
+    private Rigidbody rb;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     public void AIMove(Vector3 moveDirection)
     {
-        Vector3 movementVector = moveDirection * speed * Time.deltaTime;
+        Vector3 movementVector = moveDirection * movementForce * Time.deltaTime;
         // Actually move
+        rb.AddForce(movementVector, ForceMode.VelocityChange);
     }
 
     private void OnCollisionEnter(Collision collision)
