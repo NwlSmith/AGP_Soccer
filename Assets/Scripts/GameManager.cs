@@ -65,6 +65,15 @@ public class AILifecycleManager
         Vector2 directionVector2D = new Vector2(directionVector3D.x, directionVector3D.z).normalized;
         return directionVector2D;
     }
+
+    public void Destroy()
+    {
+        for (int i = 0; i < pawns.Count; i++)
+        {
+            if (pawns[i]) pawns[i].Destroy();
+            pawns[i] = null;
+        }
+    }
 }
 
 public class GameManager : MonoBehaviour
@@ -98,5 +107,11 @@ public class GameManager : MonoBehaviour
     void FixedUpdate()
     {
         ServicesLocator.aILifecycleManager.FixedUpdate();
+    }
+
+    // Not sure this is necessary...
+    private void OnDestroy()
+    {
+        ServicesLocator.aILifecycleManager.Destroy();
     }
 }

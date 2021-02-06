@@ -61,4 +61,9 @@ public class Pawn : MonoBehaviour
         Debug.Log("Clicked " + name);
         //ServicesLocator.playerControl.
     }
+
+    public void Destroy()
+    {
+        Destroy(gameObject);
+    }
 }
