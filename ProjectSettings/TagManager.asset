@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Goal
   - Ball
+  - Pawn
   layers:
   - Default
   - TransparentFX

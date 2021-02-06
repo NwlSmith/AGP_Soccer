@@ -2,7 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Recieves and reports player input.
+/*
+ * Creator: Nate Smith
+ * Date: 2/6/2021
+ * Description: Catches and sends signals for player input.
+ */
 public class InputHandler : MonoBehaviour
 {
     /*
@@ -24,7 +28,18 @@ public class InputHandler : MonoBehaviour
     {
         playerMovementInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Pawn clickedPawn = hit.collider.GetComponent<Pawn>();
+                if (!clickedPawn) return;
 
+                
+                ServicesLocator.playerControl.SetTargetPawn(clickedPawn);
+            }
+        }
     }
 
     private void FixedUpdate()

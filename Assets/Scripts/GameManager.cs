@@ -16,6 +16,7 @@ public static class ServicesLocator
         gameManager = gm;
         ball = ballRB;
         aILifecycleManager = new AILifecycleManager();
+        playerControl = Object.FindObjectOfType<PlayerControl>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
         inputHandler = Object.FindObjectOfType<InputHandler>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
     }
 }
@@ -29,10 +30,16 @@ public class AILifecycleManager
 
     public void Start()
     {
-        foreach (Transform trans in ServicesLocator.gameManager.pawnStartPositions)
+        SpawnTeam(ServicesLocator.gameManager.pawnStartPositionsRed, ServicesLocator.gameManager.pawnPrefabRed);
+        SpawnTeam(ServicesLocator.gameManager.pawnStartPositionsBlue, ServicesLocator.gameManager.pawnPrefabBlue);
+    }
+
+    private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab)
+    {
+        foreach (Transform trans in pawnStartPositions)
         {
             Pawn newPawn = Object.Instantiate(
-                ServicesLocator.gameManager.pawnPrefab,
+                pawnPrefab,
                 trans.position,
                 trans.rotation,
                 ServicesLocator.pawnHolder);
@@ -65,8 +72,10 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance = null;
 
-    public Transform[] pawnStartPositions;
-    public Pawn pawnPrefab;
+    public Transform[] pawnStartPositionsRed;
+    public Transform[] pawnStartPositionsBlue;
+    public Pawn pawnPrefabRed;
+    public Pawn pawnPrefabBlue;
     [SerializeField] private Rigidbody ball;
     //[SerializeField] private InputHandler inputHandler;
 
