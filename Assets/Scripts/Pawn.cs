@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Creator: Nate Smith
+ * Date: 2/5/2021
+ * Description: Class for each soccer player. Can be moved either by the player or by the AI system.
+ */
 public class Pawn : MonoBehaviour
 {
     /* maybe make a struct like this?
@@ -22,9 +27,11 @@ public class Pawn : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    public void AIMove(Vector3 moveDirection)
+    public void Move(Vector2 moveDirection)
     {
-        Vector3 movementVector = moveDirection * movementForce * Time.deltaTime;
+        // May be a better way than to make a new vector every time
+        Vector3 movementVector = new Vector3(moveDirection.x, 0, moveDirection.y) * movementForce * Time.fixedDeltaTime;
+
         // Actually move
         rb.AddForce(movementVector, ForceMode.VelocityChange);
     }
@@ -47,5 +54,11 @@ public class Pawn : MonoBehaviour
         forceDirection.y = kickForceVertical;
 
         ServicesLocator.ball.AddForce(forceDirection, ForceMode.Impulse);
+    }
+
+    private void OnMouseDown()
+    {
+        Debug.Log("Clicked " + name);
+        //ServicesLocator.playerControl.
     }
 }

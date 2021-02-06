@@ -4,17 +4,19 @@ using UnityEngine;
 
 public static class ServicesLocator
 {
-    public static GameManager gameManager { get; private set; }
+    public static GameManager        gameManager        { get; private set; }
     public static AILifecycleManager aILifecycleManager { get; private set; }
-    public static Transform pawnHolder { get; private set; }
-    public static Rigidbody ball { get; private set; }
-    public static PlayerControl playerControl { get; private set; }
+    public static Transform          pawnHolder         { get; private set; }
+    public static Rigidbody          ball               { get; private set; }
+    public static PlayerControl      playerControl      { get; private set; }
+    public static InputHandler       inputHandler       { get; private set; }
 
     public static void InitializeServices(GameManager gm, Rigidbody ballRB)
     {
         gameManager = gm;
         ball = ballRB;
         aILifecycleManager = new AILifecycleManager();
+        inputHandler = Object.FindObjectOfType<InputHandler>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
     }
 }
 
@@ -29,28 +31,32 @@ public class AILifecycleManager
     {
         foreach (Transform trans in ServicesLocator.gameManager.pawnStartPositions)
         {
-            Pawn newPawn = Object.Instantiate(ServicesLocator.gameManager.pawnPrefab, trans.position, trans.rotation, ServicesLocator.pawnHolder);
+            Pawn newPawn = Object.Instantiate(
+                ServicesLocator.gameManager.pawnPrefab,
+                trans.position,
+                trans.rotation,
+                ServicesLocator.pawnHolder);
+
             pawns.Add(newPawn);
         }
     }
 
-    public void Update()
+    public void FixedUpdate()
     {
         foreach (Pawn pawn in pawns)
         {
             // Move toward ball.
             if (!pawn.isPlayer)
-                pawn.AIMove(CalculateAIMovement(pawn));
+                pawn.Move(CalculateAIMovement(pawn));
         }
     }
 
-    private Vector3 CalculateAIMovement(Pawn pawn)
+    private Vector2 CalculateAIMovement(Pawn pawn)
     {
         // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
-        Vector3 directionVector = ServicesLocator.ball.position - pawn.transform.position;
-        directionVector.Normalize();
-        directionVector.y = 0;
-        return directionVector;
+        Vector3 directionVector3D = ServicesLocator.ball.position - pawn.transform.position;
+        Vector2 directionVector2D = new Vector2(directionVector3D.x, directionVector3D.z).normalized;
+        return directionVector2D;
     }
 }
 
@@ -61,7 +67,8 @@ public class GameManager : MonoBehaviour
 
     public Transform[] pawnStartPositions;
     public Pawn pawnPrefab;
-    public Rigidbody ball;
+    [SerializeField] private Rigidbody ball;
+    //[SerializeField] private InputHandler inputHandler;
 
     private void Awake()
     {
@@ -74,15 +81,13 @@ public class GameManager : MonoBehaviour
         ServicesLocator.InitializeServices(this, ball);
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         ServicesLocator.aILifecycleManager.Start();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        ServicesLocator.aILifecycleManager.Update();
+        ServicesLocator.aILifecycleManager.FixedUpdate();
     }
 }
