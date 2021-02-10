@@ -30,6 +30,17 @@ public class UIManager
         _allTexts.Add(gameOverText);
         gameOverSubtitleText = Services.SceneObjectIndex.gameOverSubtitleText;
         _allTexts.Add(gameOverSubtitleText);
+
+
+        Services.EventManager.Register<PauseEvent>(Pause);
+        Services.EventManager.Register<UnpauseEvent>(Unpause);
+    }
+
+    public void OnDestroy()
+    {
+        // Unregister!
+        Services.EventManager.Unregister<PauseEvent>(Pause);
+        Services.EventManager.Unregister<UnpauseEvent>(Unpause);
     }
 
     private void HideUI()
@@ -55,13 +66,13 @@ public class UIManager
         blueScoreText.enabled = true;
     }
 
-    public void Pause()
+    public void Pause(NEvent e)
     {
         HideUI();
         pauseText.enabled = true;
     }
 
-    public void Unpause()
+    public void Unpause(NEvent e)
     {
         StartPlay();
     }

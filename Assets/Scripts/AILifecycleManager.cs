@@ -13,6 +13,9 @@ public class AILifecycleManager
     {
         SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsRed, Services.SceneObjectIndex.pawnPrefabRed);
         SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsBlue, Services.SceneObjectIndex.pawnPrefabBlue);
+
+        Services.EventManager.Register<PauseEvent>(OnPause);
+        Services.EventManager.Register<PauseEvent>(Unpause);
     }
 
     private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab)
@@ -39,7 +42,7 @@ public class AILifecycleManager
         }
     }
 
-    public void Pause()
+    public void OnPause(NEvent e)
     {
         foreach (Pawn pawn in pawns)
         {
@@ -47,7 +50,7 @@ public class AILifecycleManager
         }
     }
 
-    public void Unpause()
+    public void Unpause(NEvent e)
     {
         foreach (Pawn pawn in pawns)
         {
@@ -71,5 +74,8 @@ public class AILifecycleManager
             pawns[i] = null;
         }
         pawns = new List<Pawn>();
+
+        Services.EventManager.Unregister<PauseEvent>(OnPause);
+        Services.EventManager.Unregister<PauseEvent>(Unpause);
     }
 }

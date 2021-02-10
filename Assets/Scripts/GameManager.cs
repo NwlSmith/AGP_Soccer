@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     // Not sure this is necessary...
     private void OnDestroy()
     {
-
+        Services.DestroyServices();
     }
     #endregion
 }

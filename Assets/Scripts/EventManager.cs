@@ -115,6 +115,24 @@ public class GoalScored : NEvent
     }
 }
 
+public class PauseEvent : NEvent
+{
+
+    public PauseEvent()
+    {
+
+    }
+}
+
+public class UnpauseEvent : NEvent
+{
+
+    public UnpauseEvent()
+    {
+
+    }
+}
+
 public class TimeUp : NEvent
 {
 

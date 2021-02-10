@@ -143,15 +143,23 @@ public static class Services
     public static void InitializeServices(GameManager gm)
     {
         GameManager = gm;
+        EventManager = new EventManager();
         SceneObjectIndex = gm.GetComponent<SceneObjectIndex>();
         ball = SceneObjectIndex.ball;
         AILifecycleManager = new AILifecycleManager();
         GameStateController = new GameStateController();
         PlayerControl = Object.FindObjectOfType<PlayerControl>();
         InputHandler = Object.FindObjectOfType<InputHandler>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
-        EventManager = new EventManager();
         ScoreController = new ScoreController();
         UIManager = new UIManager();
+    }
+
+    public static void DestroyServices()
+    {
+        AILifecycleManager.Destroy();
+        GameStateController.Destroy();
+        ScoreController.OnDestroy();
+        UIManager.OnDestroy();
     }
     #endregion
 }

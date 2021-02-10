@@ -18,6 +18,11 @@ public class GameStateController
         _fsm.Update();
     }
 
+    public void Destroy()
+    {
+
+    }
+
     #region States
 
     private abstract class GameState : FiniteStateMachine<GameStateController>.State { }
@@ -80,7 +85,6 @@ public class GameStateController
         public override void OnEnter()
         {
             // start ai and other things
-            // register timeup
             Services.EventManager.Register<TimeUp>(OnTimeUp);
             Services.EventManager.Register<GoalScored>(OnGoalScored);
             Debug.Log("PlayGame Enter");
@@ -131,8 +135,7 @@ public class GameStateController
         {
             // start ai and other things
             Debug.Log("Pause Enter");
-            Services.UIManager.Pause(); // Turn this into an event!
-            Services.AILifecycleManager.Pause();
+            Services.EventManager.Fire(new PauseEvent());
 
             Services.GameStateController.isPaused = true;
             ballVelocity = Services.ball.velocity;
@@ -154,9 +157,8 @@ public class GameStateController
         {
             // Pause ai update?
             Debug.Log("Pause Exit");
-            Services.UIManager.Unpause(); // Turn this into an event!
-            Services.AILifecycleManager.Unpause();
-            
+            Services.EventManager.Fire(new UnpauseEvent());
+
             Services.ball.isKinematic = false;
             Services.ball.velocity = ballVelocity;
             Services.GameStateController.isPaused = false;
