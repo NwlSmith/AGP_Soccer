@@ -13,7 +13,7 @@ public class ScoreController
     private float _time;
     private float _startTime = 20f;
 
-    public ScoreController()
+    public ScoreController() : base()
     {
 
         // Register event for goal scored

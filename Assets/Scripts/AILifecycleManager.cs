@@ -9,7 +9,12 @@ public class AILifecycleManager
     [SerializeField] private Pawn pawnPrefab;*/
     private List<Pawn> pawns = new List<Pawn>();
 
-    public void Start()
+    public AILifecycleManager() : base()
+    {
+        Services.EventManager.Register<StartGameEvent>(Start);
+    }
+
+    public void Start(NEvent e)
     {
         SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsRed, Services.SceneObjectIndex.pawnPrefabRed);
         SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsBlue, Services.SceneObjectIndex.pawnPrefabBlue);
@@ -66,7 +71,7 @@ public class AILifecycleManager
         return directionVector2D;
     }
 
-    public void Destroy()
+    public void RemoveTeam()
     {
         for (int i = 0; i < pawns.Count; i++)
         {
@@ -74,8 +79,14 @@ public class AILifecycleManager
             pawns[i] = null;
         }
         pawns = new List<Pawn>();
-
+        
         Services.EventManager.Unregister<PauseEvent>(OnPause);
         Services.EventManager.Unregister<PauseEvent>(Unpause);
+    }
+
+    public void Destroy()
+    {
+        RemoveTeam();
+        Services.EventManager.Unregister<StartGameEvent>(Start);
     }
 }

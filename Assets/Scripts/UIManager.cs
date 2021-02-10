@@ -14,7 +14,7 @@ public class UIManager
     public Text gameOverText { get; private set; }
     public Text gameOverSubtitleText { get; private set; }
 
-    public UIManager()
+    public UIManager() : base()
     {
         timeText = Services.SceneObjectIndex.timeText;
         _allTexts.Add(timeText);
@@ -32,6 +32,7 @@ public class UIManager
         _allTexts.Add(gameOverSubtitleText);
 
 
+        Services.EventManager.Register<StartGameEvent>(StartPlay);
         Services.EventManager.Register<PauseEvent>(Pause);
         Services.EventManager.Register<UnpauseEvent>(Unpause);
     }
@@ -39,6 +40,7 @@ public class UIManager
     public void OnDestroy()
     {
         // Unregister!
+        Services.EventManager.Unregister<StartGameEvent>(StartPlay);
         Services.EventManager.Unregister<PauseEvent>(Pause);
         Services.EventManager.Unregister<UnpauseEvent>(Unpause);
     }
@@ -58,7 +60,7 @@ public class UIManager
         startText.enabled = true;
     }
 
-    public void StartPlay()
+    public void StartPlay(NEvent e)
     {
         HideUI();
         timeText.enabled = true;
@@ -74,7 +76,7 @@ public class UIManager
 
     public void Unpause(NEvent e)
     {
-        StartPlay();
+        StartPlay(e);
     }
 
     public void GameOver()

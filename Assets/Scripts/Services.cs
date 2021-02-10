@@ -156,7 +156,7 @@ public static class Services
 
     public static void DestroyServices()
     {
-        AILifecycleManager.Destroy();
+        AILifecycleManager.RemoveTeam();
         GameStateController.Destroy();
         ScoreController.OnDestroy();
         UIManager.OnDestroy();

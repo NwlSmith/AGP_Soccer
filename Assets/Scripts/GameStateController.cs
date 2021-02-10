@@ -31,7 +31,6 @@ public class GameStateController
     {
         public override void OnEnter()
         {
-            // display menu
             Debug.Log("StartMenu Enter");
             Services.UIManager.StartMenu();
         }
@@ -39,7 +38,6 @@ public class GameStateController
         public override void Update()
         {
             base.Update();
-            // Somehow detect button press?
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -51,7 +49,6 @@ public class GameStateController
         {
             // get rid of buttons
             Debug.Log("StartMenu Exit");
-            Services.UIManager.StartPlay();
         }
     }
 
@@ -61,7 +58,7 @@ public class GameStateController
         {
             Debug.Log("StartGame Enter");
             // start ai and other things
-            Services.AILifecycleManager.Start(); // Doesn't belong here anymore!
+            Services.EventManager.Fire(new StartGameEvent());
             // A loading screen could go here? Would need an update screen to update progress.
             // Initialize score controller?
             Services.ball.position = Services.SceneObjectIndex.ballInitPos;
@@ -105,8 +102,6 @@ public class GameStateController
         public override void OnExit()
         {
             // Pause ai update?
-            // unregister timeup event
-            // Unregister pause event?
 
             Services.EventManager.Unregister<TimeUp>(OnTimeUp);
             Services.EventManager.Unregister<GoalScored>(OnGoalScored);
@@ -122,7 +117,7 @@ public class GameStateController
         public void OnGoalScored(NEvent e)
         {
             Debug.Log("Goal scored, starting again.");
-            Services.AILifecycleManager.Destroy();
+            Services.AILifecycleManager.RemoveTeam();
             TransitionTo<StartGame>();
         }
     }
@@ -145,7 +140,6 @@ public class GameStateController
         public override void Update()
         {
             base.Update();
-            // Detect if 
 
             if (Input.GetKeyDown(KeyCode.P))
             {
@@ -155,7 +149,6 @@ public class GameStateController
 
         public override void OnExit()
         {
-            // Pause ai update?
             Debug.Log("Pause Exit");
             Services.EventManager.Fire(new UnpauseEvent());
 
@@ -178,11 +171,10 @@ public class GameStateController
         public override void Update()
         {
             base.Update();
-            // Detect if 
 
-            if (false)
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                TransitionTo<StartGame>();
+                // load scene again.
             }
         }
 

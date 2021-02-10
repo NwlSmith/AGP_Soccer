@@ -104,6 +104,15 @@ public abstract class NEvent
     public delegate void Handler(NEvent e);
 }
 
+public class StartGameEvent : NEvent
+{
+
+    public StartGameEvent()
+    {
+
+    }
+}
+
 public class GoalScored : NEvent
 {
     public readonly bool blueScored;
