@@ -47,13 +47,13 @@ public class Pawn : MonoBehaviour
     private void Kick()
     {
         // Similar issue with CalculateAIMovement() in AILifetimeController, I don't think this calculates what I want it to.
-        Vector3 forceDirection = ServicesLocator.ball.position - transform.position;
+        Vector3 forceDirection = Services.ball.position - transform.position;
         forceDirection.y = 0f;
         forceDirection.Normalize();
         forceDirection *= kickForceHorizontal;
         forceDirection.y = kickForceVertical;
 
-        ServicesLocator.ball.AddForce(forceDirection, ForceMode.Impulse);
+        Services.ball.AddForce(forceDirection, ForceMode.Impulse);
     }
 
     private void OnMouseDown()

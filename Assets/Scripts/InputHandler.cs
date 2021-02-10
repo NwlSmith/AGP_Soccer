@@ -24,7 +24,7 @@ public class InputHandler : MonoBehaviour
 
     [SerializeField] private Vector2 playerMovementInput = Vector2.zero;
 
-    void Update()
+    public void Update()
     {
         playerMovementInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
@@ -37,13 +37,13 @@ public class InputHandler : MonoBehaviour
                 if (!clickedPawn) return;
 
                 
-                ServicesLocator.playerControl.SetTargetPawn(clickedPawn);
+                Services.PlayerControl.SetTargetPawn(clickedPawn);
             }
         }
     }
 
     private void FixedUpdate()
     {
-        ServicesLocator.playerControl.IntakeInput(playerMovementInput);
+        Services.PlayerControl.IntakeInput(playerMovementInput);
     }
 }

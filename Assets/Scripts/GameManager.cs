@@ -2,79 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class ServicesLocator
-{
-    public static GameManager        gameManager        { get; private set; }
-    public static AILifecycleManager aILifecycleManager { get; private set; }
-    public static Transform          pawnHolder         { get; private set; }
-    public static Rigidbody          ball               { get; private set; }
-    public static PlayerControl      playerControl      { get; private set; }
-    public static InputHandler       inputHandler       { get; private set; }
-
-    public static void InitializeServices(GameManager gm, Rigidbody ballRB)
-    {
-        gameManager = gm;
-        ball = ballRB;
-        aILifecycleManager = new AILifecycleManager();
-        playerControl = Object.FindObjectOfType<PlayerControl>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
-        inputHandler = Object.FindObjectOfType<InputHandler>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
-    }
-}
-
-public class AILifecycleManager
-{
-    /*
-    [SerializeField] private Transform[] pawnStartPositions;
-    [SerializeField] private Pawn pawnPrefab;*/
-    private List<Pawn> pawns = new List<Pawn>();
-
-    public void Start()
-    {
-        SpawnTeam(ServicesLocator.gameManager.pawnStartPositionsRed, ServicesLocator.gameManager.pawnPrefabRed);
-        SpawnTeam(ServicesLocator.gameManager.pawnStartPositionsBlue, ServicesLocator.gameManager.pawnPrefabBlue);
-    }
-
-    private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab)
-    {
-        foreach (Transform trans in pawnStartPositions)
-        {
-            Pawn newPawn = Object.Instantiate(
-                pawnPrefab,
-                trans.position,
-                trans.rotation,
-                ServicesLocator.pawnHolder);
-
-            pawns.Add(newPawn);
-        }
-    }
-
-    public void FixedUpdate()
-    {
-        foreach (Pawn pawn in pawns)
-        {
-            // Move toward ball.
-            if (!pawn.isPlayer)
-                pawn.Move(CalculateAIMovement(pawn));
-        }
-    }
-
-    private Vector2 CalculateAIMovement(Pawn pawn)
-    {
-        // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
-        Vector3 directionVector3D = ServicesLocator.ball.position - pawn.transform.position;
-        Vector2 directionVector2D = new Vector2(directionVector3D.x, directionVector3D.z).normalized;
-        return directionVector2D;
-    }
-
-    public void Destroy()
-    {
-        for (int i = 0; i < pawns.Count; i++)
-        {
-            if (pawns[i]) pawns[i].Destroy();
-            pawns[i] = null;
-        }
-    }
-}
 
 public class GameManager : MonoBehaviour
 {
@@ -86,8 +13,10 @@ public class GameManager : MonoBehaviour
     public Pawn pawnPrefabRed;
     public Pawn pawnPrefabBlue;
     [SerializeField] private Rigidbody ball;
+
     //[SerializeField] private InputHandler inputHandler;
 
+    #region Lifecycle Management
     private void Awake()
     {
         // Ensure that there is only one instance of the ServiceLocator.
@@ -96,22 +25,25 @@ public class GameManager : MonoBehaviour
         else if (instance != this)
             Destroy(gameObject);
 
-        ServicesLocator.InitializeServices(this, ball);
+        Services.InitializeServices(this);
+
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
     {
-        ServicesLocator.aILifecycleManager.Start();
+        Services.GameStateController.Start();
     }
 
-    void FixedUpdate()
+    void Update()
     {
-        ServicesLocator.aILifecycleManager.FixedUpdate();
+        Services.GameStateController.Update();
     }
 
     // Not sure this is necessary...
     private void OnDestroy()
     {
-        ServicesLocator.aILifecycleManager.Destroy();
+
     }
+    #endregion
 }
