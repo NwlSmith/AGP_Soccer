@@ -110,6 +110,16 @@ public class GoalScored : NEvent
 
     public GoalScored(bool blueScored)
     {
+        Debug.Log("GoalScored! inEventManager");
         this.blueScored = blueScored;
+    }
+}
+
+public class TimeUp : NEvent
+{
+
+    public TimeUp()
+    {
+        
     }
 }

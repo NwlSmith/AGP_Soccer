@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 8257767853272720833}
   - component: {fileID: 5953310342104923278}
   - component: {fileID: 6456124762037116752}
-  - component: {fileID: 7431874904022053779}
   m_Layer: 0
   m_Name: Pawn
   m_TagString: Pawn
@@ -131,21 +130,3 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 116
   m_CollisionDetection: 0
---- !u!143 &7431874904022053779
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5221807248811913212}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}

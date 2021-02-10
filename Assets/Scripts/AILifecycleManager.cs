@@ -39,6 +39,22 @@ public class AILifecycleManager
         }
     }
 
+    public void Pause()
+    {
+        foreach (Pawn pawn in pawns)
+        {
+            pawn.Pause();
+        }
+    }
+
+    public void Unpause()
+    {
+        foreach (Pawn pawn in pawns)
+        {
+            pawn.Unpause();
+        }
+    }
+
     private Vector2 CalculateAIMovement(Pawn pawn)
     {
         // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
@@ -54,5 +70,6 @@ public class AILifecycleManager
             if (pawns[i]) pawns[i].Destroy();
             pawns[i] = null;
         }
+        pawns = new List<Pawn>();
     }
 }

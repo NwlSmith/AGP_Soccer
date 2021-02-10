@@ -9,15 +9,14 @@ using UnityEngine;
  */
 public class Goal : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private bool isBlue = false;
+    private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("Ball"))
+        {
+            Debug.Log("Ball entered goal");
+            Services.EventManager.Fire(new GoalScored(isBlue));
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

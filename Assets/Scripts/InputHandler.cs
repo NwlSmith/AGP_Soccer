@@ -40,6 +40,7 @@ public class InputHandler : MonoBehaviour
                 Services.PlayerControl.SetTargetPawn(clickedPawn);
             }
         }
+
     }
 
     private void FixedUpdate()

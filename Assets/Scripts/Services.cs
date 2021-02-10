@@ -126,6 +126,17 @@ public static class Services
         }
         private set => _sc = value;
     }
+
+    private static UIManager _uim;
+    public static UIManager UIManager
+    {
+        get
+        {
+            Debug.Assert(_uim != null);
+            return _uim;
+        }
+        private set => _uim = value;
+    }
     #endregion
 
     #region Functions
@@ -139,7 +150,8 @@ public static class Services
         PlayerControl = Object.FindObjectOfType<PlayerControl>();
         InputHandler = Object.FindObjectOfType<InputHandler>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
         EventManager = new EventManager();
-        ScoreController = new ScoreController(SceneObjectIndex.redScoreText, SceneObjectIndex.blueScoreText, SceneObjectIndex.timeText);
+        ScoreController = new ScoreController();
+        UIManager = new UIManager();
     }
     #endregion
 }

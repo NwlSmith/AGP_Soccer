@@ -5,24 +5,16 @@ using UnityEngine.UI;
 
 public class ScoreController
 {
-    private Text _redScoreText;
-    private Text _blueScoreText;
 
     private int _redScore = 0;
     private int _blueScore = 0;
 
-    public Text _timeText { get; private set; }
-
     // Time in seconds.
     private float _time;
-    private float _startTime = 60f;
+    private float _startTime = 20f;
 
-    public ScoreController(Text red, Text blue, Text time)
+    public ScoreController()
     {
-        _time = _startTime;
-        _redScoreText = red;
-        _blueScoreText = blue;
-        _timeText = time;
 
         // Register event for goal scored
         Services.EventManager.Register<GoalScored>(IncrementScore);
@@ -31,9 +23,10 @@ public class ScoreController
 
     public void IncrementScore(NEvent e)
     {
-        //bool blueScored = ((GoalScored)e).blueScored;
+        bool blueScored = ((GoalScored)e).blueScored;
+        Debug.Log("Goal Scored! in scorecontroller");
 
-        if (true)//blueScored)
+        if (blueScored)
         {
             _blueScore++;
         }
@@ -42,25 +35,37 @@ public class ScoreController
             _redScore++;
         }
 
-        UpdateScore();
+        Services.UIManager.UpdateScore(_redScore, _blueScore);
     }
 
     public void UpdateTime()
     {
         if (_time <= 0f) return;
         _time -= Time.deltaTime;
-        _timeText.text = _time.ToString();
+
+        Services.UIManager.UpdateTime(_time);
 
         if (_time <= 0f)
         {
             // Fire times up event.
+            Services.EventManager.Fire(new TimeUp());
         }
     }
 
-    private void UpdateScore()
+    public string WhoWon()
     {
-        _redScoreText.text = _redScore.ToString();
-        _blueScoreText.text = _blueScore.ToString();
+        if (_blueScore > _redScore)
+        {
+            return "Blue team won!";
+        }
+        else if (_blueScore < _redScore)
+        {
+            return "Red team won!";
+        }
+        else
+        {
+            return "It was a tie!";
+        }
     }
 
     public void OnDestroy()

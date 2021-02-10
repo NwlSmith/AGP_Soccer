@@ -27,7 +27,10 @@ public class SceneObjectIndex : MonoBehaviour
     public Text timeText;
     #endregion
 
-    #region Start menu
+    #region UI
     public Text startText;
+    public Text pauseText;
+    public Text gameOverText;
+    public Text gameOverSubtitleText;
     #endregion
 }

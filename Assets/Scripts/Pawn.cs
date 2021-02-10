@@ -56,10 +56,14 @@ public class Pawn : MonoBehaviour
         Services.ball.AddForce(forceDirection, ForceMode.Impulse);
     }
 
-    private void OnMouseDown()
+    public void Pause()
     {
-        Debug.Log("Clicked " + name);
-        //ServicesLocator.playerControl.
+        rb.isKinematic = true;
+    }
+
+    public void Unpause()
+    {
+        rb.isKinematic = false;
     }
 
     public void Destroy()
