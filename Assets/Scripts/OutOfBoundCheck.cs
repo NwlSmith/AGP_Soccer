@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class OutOfBoundCheck : MonoBehaviour
 {
-    private void OnTriggerExit(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Ball"))
+        if (!Services.GameStateController.isPaused && other.CompareTag("Ball"))
         {
             Debug.Log("Ball exited field.");
             Services.ball.position = Services.SceneObjectIndex.ballInitPos;

@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameStateController
 {
     private FiniteStateMachine<GameStateController> _fsm;
+    public bool isPaused = false;
 
     public void Start()
     {
@@ -133,6 +134,7 @@ public class GameStateController
             Services.UIManager.Pause(); // Turn this into an event!
             Services.AILifecycleManager.Pause();
 
+            Services.GameStateController.isPaused = true;
             ballVelocity = Services.ball.velocity;
             Services.ball.isKinematic = true;
         }
@@ -154,9 +156,10 @@ public class GameStateController
             Debug.Log("Pause Exit");
             Services.UIManager.Unpause(); // Turn this into an event!
             Services.AILifecycleManager.Unpause();
-
+            
             Services.ball.isKinematic = false;
             Services.ball.velocity = ballVelocity;
+            Services.GameStateController.isPaused = false;
         }
     }
 

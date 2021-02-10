@@ -18,7 +18,7 @@ public class ScoreController
 
         // Register event for goal scored
         Services.EventManager.Register<GoalScored>(IncrementScore);
-
+        _time = _startTime;
     }
 
     public void IncrementScore(NEvent e)
