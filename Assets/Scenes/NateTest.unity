@@ -504,6 +504,8 @@ MonoBehaviour:
   gameOverSubtitleText: {fileID: 1143393413}
   refereePrefab: {fileID: 5221807248811913212, guid: 94cafb189ecdcf643b70786d8cd284b6, type: 3}
   refereeSpawnTransform: {fileID: 314002832}
+  redGoal: {fileID: 911680971}
+  blueGoal: {fileID: 52937342}
 --- !u!1 &409839807
 GameObject:
   m_ObjectHideFlags: 0

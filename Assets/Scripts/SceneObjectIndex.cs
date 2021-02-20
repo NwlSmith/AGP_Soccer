@@ -38,4 +38,9 @@ public class SceneObjectIndex : MonoBehaviour
     public GameObject refereePrefab;
     public Transform refereeSpawnTransform;
     #endregion
+
+    #region Goals
+    public Transform redGoal;
+    public Transform blueGoal;
+    #endregion
 }

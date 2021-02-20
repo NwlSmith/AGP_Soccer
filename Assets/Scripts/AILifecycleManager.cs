@@ -25,8 +25,8 @@ public class AILifecycleManager
 
     public void Start(NEvent e)
     {
-        SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsRed, Services.SceneObjectIndex.pawnPrefabRed);
-        SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsBlue, Services.SceneObjectIndex.pawnPrefabBlue);
+        SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsRed, Services.SceneObjectIndex.pawnPrefabRed, false);
+        SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsBlue, Services.SceneObjectIndex.pawnPrefabBlue, true);
 
         _referee = SpawnPawn(Services.SceneObjectIndex.refereeSpawnTransform, Services.SceneObjectIndex.refereePrefab.GetComponent<Pawn>()).GetComponent<Referee>();
 
@@ -55,11 +55,13 @@ public class AILifecycleManager
 
     #region Spawning and despawning
 
-    private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab)
+    private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab, bool isBlue)
     {
         foreach (Transform trans in pawnStartPositions)
         {
-            pawns.Add(SpawnPawn(trans, pawnPrefab));
+            Pawn pawn = SpawnPawn(trans, pawnPrefab);
+            pawn.isBlue = isBlue;
+            pawns.Add(pawn);
         }
     }
 

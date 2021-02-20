@@ -24,7 +24,9 @@ public class Pawn : MonoBehaviour
     [SerializeField] private float kickForceHorizontal = 10f;
     [SerializeField] private float kickForceVertical = 2f;
     protected Rigidbody rb;
-    protected BehaviorTree.Tree<Pawn> _tree;
+    protected Tree<Pawn> _tree;
+
+    public bool isBlue;
 
     public BehaviorEnum behavior; // Set behavior at spawn.
 
@@ -40,7 +42,7 @@ public class Pawn : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void SetBehaviorTree(BehaviorTree.Tree<Pawn> tree)
+    public void SetBehaviorTree(Tree<Pawn> tree)
     {
         _tree = tree;
     }
@@ -111,15 +113,18 @@ public class Pawn : MonoBehaviour
 public class IsCloseToBall : BehaviorTree.Node<Pawn>
 {
     private float _distance;
+    private float _precision;
 
-    public IsCloseToBall(float dist)
+    public IsCloseToBall(float dist, float precision)
     {
         _distance = dist;
+        _precision = precision;
     }
 
     public override bool Update(Pawn context)
     {
-        return Vector3.Distance(context.transform.position, Services.ball.position) < _distance;
+        float dist = Vector3.Distance(context.transform.position, Services.ball.position);
+        return dist < _distance + _precision && dist > _distance - _precision;
     }
 }
 
@@ -129,9 +134,24 @@ public class HasStraightPathToBall : BehaviorTree.Node<Pawn>
     public override bool Update(Pawn context)
     {
         return Physics.SphereCast(
-            context.transform.position, 
+            context.transform.position,
             1f,
-            (Services.ball.position - context.transform.position).normalized, 
+            (Services.ball.position - context.transform.position).normalized,
+            out RaycastHit hit
+            ) &&
+            hit.collider.CompareTag("Ball");
+    }
+}
+
+public class BallHasStraightPathToGoal : BehaviorTree.Node<Pawn>
+{
+
+    public override bool Update(Pawn context)
+    {
+        return Physics.SphereCast(
+            Services.ball.transform.position,
+            1f,
+            (((context.isBlue) ? Services.SceneObjectIndex.blueGoal.position : Services.SceneObjectIndex.redGoal.position) - context.transform.position).normalized,
             out RaycastHit hit
             ) &&
             hit.collider.CompareTag("Ball");
