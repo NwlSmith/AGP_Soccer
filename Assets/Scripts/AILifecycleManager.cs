@@ -8,6 +8,12 @@ public class AILifecycleManager
     [SerializeField] private Transform[] pawnStartPositions;
     [SerializeField] private Pawn pawnPrefab;*/
     private List<Pawn> pawns = new List<Pawn>();
+    private Referee _referee = null;
+
+    // Collision details.
+    public readonly float maxCollisionSpeed = 50f;
+    private readonly float _timeBetweenFouls = 1f;
+    private float _timeAtLastFoul = 0f;
 
     public AILifecycleManager() : base()
     {
@@ -19,22 +25,28 @@ public class AILifecycleManager
         SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsRed, Services.SceneObjectIndex.pawnPrefabRed);
         SpawnTeam(Services.SceneObjectIndex.pawnStartPositionsBlue, Services.SceneObjectIndex.pawnPrefabBlue);
 
+        _referee = SpawnPawn(Services.SceneObjectIndex.refereeSpawnTransform, Services.SceneObjectIndex.refereePrefab.GetComponent<Pawn>()).GetComponent<Referee>();
+
         Services.EventManager.Register<PauseEvent>(OnPause);
-        Services.EventManager.Register<PauseEvent>(Unpause);
+        Services.EventManager.Register<UnpauseEvent>(Unpause);
+        Services.EventManager.Register<Foul>(OnFoul);
     }
 
     private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab)
     {
         foreach (Transform trans in pawnStartPositions)
         {
-            Pawn newPawn = Object.Instantiate(
+            pawns.Add(SpawnPawn(trans, pawnPrefab));
+        }
+    }
+
+    private Pawn SpawnPawn(Transform trans, Pawn pawnPrefab)
+    {
+        return Object.Instantiate(
                 pawnPrefab,
                 trans.position,
                 trans.rotation,
                 Services.GameManager.transform.parent);
-
-            pawns.Add(newPawn);
-        }
     }
 
     public void Update()
@@ -53,6 +65,7 @@ public class AILifecycleManager
         {
             pawn.Pause();
         }
+        _referee.Pause();
     }
 
     public void Unpause(NEvent e)
@@ -61,6 +74,12 @@ public class AILifecycleManager
         {
             pawn.Unpause();
         }
+        _referee.Unpause();
+    }
+
+    public void OnFoul(NEvent e)
+    {
+        _timeAtLastFoul = Time.time;
     }
 
     private Vector2 CalculateAIMovement(Pawn pawn)
@@ -82,6 +101,11 @@ public class AILifecycleManager
         
         Services.EventManager.Unregister<PauseEvent>(OnPause);
         Services.EventManager.Unregister<PauseEvent>(Unpause);
+    }
+
+    public bool CanFoulBeCalled()
+    {
+        return Time.time - _timeAtLastFoul >= _timeBetweenFouls;
     }
 
     public void Destroy()

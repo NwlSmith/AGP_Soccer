@@ -22,7 +22,7 @@ public class Pawn : MonoBehaviour
     [SerializeField] private float kickForceVertical = 2f;
     protected Rigidbody rb;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
@@ -40,12 +40,14 @@ public class Pawn : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ball"))
             Kick();
-        else if (collision.gameObject.CompareTag("Pawn"))
+        else if (collision.gameObject.CompareTag("Pawn") &&
+            collision.relativeVelocity.magnitude >= Services.AILifecycleManager.maxCollisionSpeed &&
+            Services.AILifecycleManager.CanFoulBeCalled()
+            )
         {
-            // CHECK IF RELATIVE VEL IS TOO HIGH, IF TOO HIGH CALL WHISTLE ON REF.
+            Services.EventManager.Fire(new Foul(this, collision.gameObject.GetComponent<Pawn>()));
         }
-
-
+        
     }
 
     private void Kick()
@@ -60,12 +62,12 @@ public class Pawn : MonoBehaviour
         Services.ball.AddForce(forceDirection, ForceMode.Impulse);
     }
 
-    public void Pause()
+    public virtual void Pause()
     {
         rb.isKinematic = true;
     }
 
-    public void Unpause()
+    public virtual void Unpause()
     {
         rb.isKinematic = false;
     }

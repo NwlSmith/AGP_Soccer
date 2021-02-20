@@ -10,8 +10,9 @@ public class Referee : Pawn // TURN THIS INTO A PAWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     #region Lifecycle Management
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
 
         transform.position = Services.SceneObjectIndex.refereeSpawnTransform.position;
 
@@ -21,7 +22,9 @@ public class Referee : Pawn // TURN THIS INTO A PAWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         Services.EventManager.Register<TimeUp>(OnTimeUp);
         Services.EventManager.Register<GoalScored>(OnGoalScored);
-        Services.EventManager.Register<PauseEvent>(OnPause);
+
+        Services.EventManager.Register<Foul>(OnFoul);
+        //Services.EventManager.Register<PauseEvent>(Pause);
     }
 
     public void Update()
@@ -33,8 +36,8 @@ public class Referee : Pawn // TURN THIS INTO A PAWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     {
         Services.EventManager.Unregister<TimeUp>(OnTimeUp);
         Services.EventManager.Unregister<GoalScored>(OnGoalScored);
-        Services.EventManager.Unregister<PauseEvent>(OnPause);
-        _fsm.Destroy();
+        //Services.EventManager.Unregister<PauseEvent>(Pause);
+        //_fsm.Destroy();
     }
 
     #endregion
@@ -49,9 +52,23 @@ public class Referee : Pawn // TURN THIS INTO A PAWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         _fsm.TransitionTo<StartState>();
     }
 
-    public void OnPause(NEvent e)
+    //public override void Pause(NEvent e)
+    public override void Pause()
     {
         _fsm.TransitionTo<PauseState>();
+    }
+    
+    //public override void Unpause(NEvent e)
+    public override void Unpause()
+    {
+        _fsm.TransitionTo<GoNearBall>();
+    }
+
+    public void OnFoul(NEvent e)
+    {
+        Pawn p1 = ((Foul)e).player1;
+        Pawn p2 = ((Foul)e).player2;
+        Debug.Log($"Foul between {p1.name} and {p2.name}.");
     }
 
     #region States
@@ -124,6 +141,7 @@ public class Referee : Pawn // TURN THIS INTO A PAWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     private class PauseState : RefState
     {
+
         public override void OnEnter()
         {
             Context.rb.isKinematic = true;
@@ -132,7 +150,6 @@ public class Referee : Pawn // TURN THIS INTO A PAWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         public override void OnExit()
         {
             // Pause ai update?
-
             Context.rb.isKinematic = false;
         }
     }

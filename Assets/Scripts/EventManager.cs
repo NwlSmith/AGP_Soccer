@@ -150,3 +150,14 @@ public class TimeUp : NEvent
         
     }
 }
+
+public class Foul : NEvent
+{
+    public readonly Pawn player1;
+    public readonly Pawn player2;
+    public Foul(Pawn player1, Pawn player2)
+    {
+        this.player1 = player1;
+        this.player2 = player2;
+    }
+}
