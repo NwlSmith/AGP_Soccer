@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using BehaviorTree;
 
 public class AILifecycleManager
 {
@@ -14,6 +15,8 @@ public class AILifecycleManager
     public readonly float maxCollisionSpeed = 50f;
     private readonly float _timeBetweenFouls = 1f;
     private float _timeAtLastFoul = 0f;
+
+    #region Lifecycle Management
 
     public AILifecycleManager() : base()
     {
@@ -32,6 +35,26 @@ public class AILifecycleManager
         Services.EventManager.Register<Foul>(OnFoul);
     }
 
+    public void Update()
+    {
+        foreach (Pawn pawn in pawns)
+        {
+            // Move toward ball.
+            if (!pawn.isPlayer)
+                pawn.Move(CalculateAIMovement(pawn));
+        }
+    }
+
+    public void Destroy()
+    {
+        RemoveTeam();
+        Services.EventManager.Unregister<StartGameEvent>(Start);
+    }
+
+    #endregion
+
+    #region Spawning and despawning
+
     private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab)
     {
         foreach (Transform trans in pawnStartPositions)
@@ -49,15 +72,22 @@ public class AILifecycleManager
                 Services.GameManager.transform.parent);
     }
 
-    public void Update()
+    public void RemoveTeam()
     {
-        foreach (Pawn pawn in pawns)
+        for (int i = 0; i < pawns.Count; i++)
         {
-            // Move toward ball.
-            if (!pawn.isPlayer)
-                pawn.Move(CalculateAIMovement(pawn));
+            if (pawns[i]) pawns[i].Destroy();
+            pawns[i] = null;
         }
+        pawns = new List<Pawn>();
+
+        Services.EventManager.Unregister<PauseEvent>(OnPause);
+        Services.EventManager.Unregister<PauseEvent>(Unpause);
     }
+
+    #endregion
+
+    #region Events
 
     public void OnPause(NEvent e)
     {
@@ -82,6 +112,10 @@ public class AILifecycleManager
         _timeAtLastFoul = Time.time;
     }
 
+    #endregion
+
+    #region Utilities
+
     private Vector2 CalculateAIMovement(Pawn pawn)
     {
         // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
@@ -90,27 +124,10 @@ public class AILifecycleManager
         return directionVector2D;
     }
 
-    public void RemoveTeam()
-    {
-        for (int i = 0; i < pawns.Count; i++)
-        {
-            if (pawns[i]) pawns[i].Destroy();
-            pawns[i] = null;
-        }
-        pawns = new List<Pawn>();
-        
-        Services.EventManager.Unregister<PauseEvent>(OnPause);
-        Services.EventManager.Unregister<PauseEvent>(Unpause);
-    }
-
     public bool CanFoulBeCalled()
     {
         return Time.time - _timeAtLastFoul >= _timeBetweenFouls;
     }
 
-    public void Destroy()
-    {
-        RemoveTeam();
-        Services.EventManager.Unregister<StartGameEvent>(Start);
-    }
+    #endregion
 }

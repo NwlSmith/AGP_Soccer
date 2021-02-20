@@ -1,5 +1,16 @@
 using System;
 
+/*
+ * Creator: Jack Schlesinger
+ * Date Created: 2/9/2021
+ * Description: Behavior Tree base class
+ * 
+ * Useful for programming different behaviors for AI.
+ * 
+ * 
+ * https://www.youtube.com/watch?v=K6ulNHWMTrY&list=PLE3rHjk-SWif4JAzb4FB48FPJIr3xXZUi&index=3
+ * 1:46:41
+ */
 namespace BehaviorTree
 {
     public abstract class Node<T>
