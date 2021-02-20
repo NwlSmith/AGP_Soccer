@@ -17,10 +17,10 @@ public class Pawn : MonoBehaviour
         [SerializeField] private float kickForceVertical = 2f;
     }*/
     public bool isPlayer = false;
-    [SerializeField] private float movementForce = 20f;
+    [SerializeField] protected float movementForce = 20f;
     [SerializeField] private float kickForceHorizontal = 10f;
     [SerializeField] private float kickForceVertical = 2f;
-    private Rigidbody rb;
+    protected Rigidbody rb;
 
     private void Awake()
     {
@@ -38,10 +38,14 @@ public class Pawn : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!collision.gameObject.CompareTag("Ball"))
-            return;
+        if (collision.gameObject.CompareTag("Ball"))
+            Kick();
+        else if (collision.gameObject.CompareTag("Pawn"))
+        {
+            // CHECK IF RELATIVE VEL IS TOO HIGH, IF TOO HIGH CALL WHISTLE ON REF.
+        }
 
-        Kick();
+
     }
 
     private void Kick()

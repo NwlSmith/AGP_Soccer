@@ -137,6 +137,17 @@ public static class Services
         }
         private set => _uim = value;
     }
+
+    private static Referee _ref;
+    public static Referee Referee
+    {
+        get
+        {
+            Debug.Assert(_ref != null);
+            return _ref;
+        }
+        private set => _ref = value;
+    }
     #endregion
 
     #region Functions
@@ -152,6 +163,7 @@ public static class Services
         InputHandler = Object.FindObjectOfType<InputHandler>(); // Is this a good idea? It's possible it won't find InputHandler if it is not initialized before GameObject...
         ScoreController = new ScoreController();
         UIManager = new UIManager();
+        Referee = new Referee();
     }
 
     public static void DestroyServices()
@@ -160,6 +172,7 @@ public static class Services
         GameStateController.Destroy();
         ScoreController.OnDestroy();
         UIManager.OnDestroy();
+        Referee.OnDestroy();
     }
     #endregion
 }

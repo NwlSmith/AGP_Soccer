@@ -33,4 +33,9 @@ public class SceneObjectIndex : MonoBehaviour
     public Text gameOverText;
     public Text gameOverSubtitleText;
     #endregion
+
+    #region Referee
+    public GameObject refereePrefab;
+    public Transform refereeSpawnTransform;
+    #endregion
 }
