@@ -45,10 +45,7 @@ public class Pawn : MonoBehaviour
         _initPos = transform.position;
     }
 
-    public void Destroy()
-    {
-        Destroy(gameObject);
-    }
+    public void Destroy() => Destroy(gameObject);
 
     public void SetBehaviorTree(BehaviorEnum behavior)
     {
@@ -162,21 +159,17 @@ public class Pawn : MonoBehaviour
         Services.ball.AddForce(forceDirection, ForceMode.Impulse);
     }
 
-    private Vector2 TowardBall()
+    private Vector2 Toward(Vector3 targetPos)
     {
         // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
-        Vector3 directionVector3D = Services.ball.position - transform.position;
+        Vector3 directionVector3D = targetPos - transform.position;
         Vector2 directionVector2D = new Vector2(directionVector3D.x, directionVector3D.z).normalized;
         return directionVector2D;
     }
 
-    private Vector2 TowardInitPos()
-    {
-        // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
-        Vector3 directionVector3D = _initPos - transform.position;
-        Vector2 directionVector2D = new Vector2(directionVector3D.x, directionVector3D.z).normalized;
-        return directionVector2D;
-    }
+    private Vector2 TowardBall() => Toward(Services.ball.position);
+
+    private Vector2 TowardInitPos() => Toward(_initPos);
 
     public void Move(Vector2 moveDirection)
     {
