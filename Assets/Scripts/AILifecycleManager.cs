@@ -41,8 +41,8 @@ public class AILifecycleManager
         {
             // Move toward ball.
             if (!pawn.isPlayer)
-                //pawn.BehaviorTreeUpdate();
-                pawn.Move(CalculateAIMovement(pawn));
+                pawn.BehaviorTreeUpdate();
+                //pawn.Move(CalculateAIMovement(pawn));
         }
     }
 
@@ -58,10 +58,22 @@ public class AILifecycleManager
 
     private void SpawnTeam(Transform[] pawnStartPositions, Pawn pawnPrefab, bool isBlue)
     {
-        foreach (Transform trans in pawnStartPositions)
+        Dictionary<int, BehaviorEnum> behaviorDictionary = new Dictionary<int, BehaviorEnum>();
+        behaviorDictionary.Add(0, BehaviorEnum.Aggressive);
+        behaviorDictionary.Add(1, BehaviorEnum.Aggressive);
+        behaviorDictionary.Add(2, BehaviorEnum.Aggressive);
+        behaviorDictionary.Add(3, BehaviorEnum.Defensive);
+        behaviorDictionary.Add(4, BehaviorEnum.Afraid_of_ball);
+        behaviorDictionary.Add(5, BehaviorEnum.Afraid_of_ball);
+        behaviorDictionary.Add(6, BehaviorEnum.Defensive);
+        behaviorDictionary.Add(7, BehaviorEnum.Defensive);
+        behaviorDictionary.Add(8, BehaviorEnum.Goalie);
+        for (int i = 0; i < pawnStartPositions.Length; i++)
         {
+            Transform trans = pawnStartPositions[i];
             Pawn pawn = SpawnPawn(trans, pawnPrefab);
             pawn.isBlue = isBlue;
+            pawn.SetBehaviorTree(behaviorDictionary[i]);
             pawns.Add(pawn);
         }
     }
@@ -83,6 +95,8 @@ public class AILifecycleManager
             pawns[i] = null;
         }
         pawns = new List<Pawn>();
+
+        _referee.Destroy();
 
         Services.EventManager.Unregister<PauseEvent>(OnPause);
         Services.EventManager.Unregister<PauseEvent>(Unpause);

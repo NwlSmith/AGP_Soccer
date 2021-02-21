@@ -50,30 +50,80 @@ public class Pawn : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void SetBehaviorTree(Tree<Pawn> tree)
+    public void SetBehaviorTree(BehaviorEnum behavior)
     {
-        _tree = tree;
+        this.behavior = behavior;
+        switch (behavior)
+        {
+            case BehaviorEnum.Aggressive:
+                _tree = new Tree<Pawn>
+                (
+                    new Selector<Pawn>
+                    (
+                        new Sequence<Pawn>
+                        (
+                            new HasStraightPathToBall(),
+                            new MoveTowardBall()
+                        ),
+                        new DontMove()
+                    )
+                );
+                break;
 
-        // Defensive
-        Tree<Pawn> defensiveTree = new Tree<Pawn>
-        (
-            new Selector<Pawn>
-            (
-                new Sequence<Pawn>
+            case BehaviorEnum.Defensive:
+                _tree = new Tree<Pawn>
+                    (
+                        new Selector<Pawn>
+                        (
+                            new Sequence<Pawn>
+                            (
+                                new BallIsOnMySideOfField(),
+                                new IAmOnCorrectSideOfBall(),
+                                new HasStraightPathToBall(),
+                                new MoveTowardBall()
+                            ),
+                            new Sequence<Pawn>
+                            (
+                                new BallIsOnMySideOfField(),
+                                new Not<Pawn>(new IAmOnCorrectSideOfBall()),
+                                new MoveToMySideOfField()
+                            ),
+                            new MoveToInitPos()
+                        )
+                );
+                break;
+
+            case BehaviorEnum.Afraid_of_ball:
+                _tree = new Tree<Pawn>
                 (
-                    new BallIsOnMySideOfField(),
-                    new IAmOnCorrectSideOfBall(),
-                    new MoveTowardBall()
-                ),
-                new Sequence<Pawn>
+                    new Selector<Pawn>
+                    (
+                        new Sequence<Pawn>
+                        (
+                            new IsCloseToBall(5f, 1f),
+                            new MoveAwayFromBall()
+                        ),
+                        new MoveToInitPos()
+                    )
+                );
+                break;
+
+            case BehaviorEnum.Goalie:
+                _tree = new Tree<Pawn>
                 (
-                    new BallIsOnMySideOfField(),
-                    new Not<Pawn>(new IAmOnCorrectSideOfBall()),
-                    new MoveToMySideOfField()
-                ),
-                new MoveToInitPos()
-            )
-        );
+                    new Selector<Pawn>
+                    (
+                        new Sequence<Pawn>
+                        (
+                            new BallIsOnMySideOfField(),
+                            new BallHasStraightPathToGoal(),
+                            new MoveToBlockBall()
+                        ),
+                        new MoveToInitPos()
+                    )
+                );
+                break;
+        }
     }
 
     public void BehaviorTreeUpdate()
@@ -157,11 +207,20 @@ public class Pawn : MonoBehaviour
 
     public void MoveTowardBall() => Move(TowardBall());
 
+    public void MoveAwayFromBall() => Move(-1 * TowardBall());
+
     public void MoveToMySideOfField() => Move(isBlue ? new Vector2(-1, 0) : new Vector2(1, 0));
 
     public void MoveToOtherSideOfField() => Move(isBlue ? new Vector2(1, 0) : new Vector2(-1, 0));
 
     public void MoveToInitPos() => Move(TowardInitPos());
+
+    public void MoveToBlockBall()
+    {
+        float correctZ = (transform.position.x - (isBlue ? Services.SceneObjectIndex.blueGoal.position.x : Services.SceneObjectIndex.redGoal.position.x)) * (Services.ball.position.z / Services.SceneObjectIndex.redGoal.position.x);
+        Debug.Log($"CorrectZ = {correctZ}");
+        Move(new Vector2(_initPos.x, correctZ));
+    }
 
     #endregion
 }
@@ -173,6 +232,15 @@ public class MoveTowardBall : Node<Pawn>
     public override bool Update(Pawn context)
     {
         context.MoveTowardBall();
+        return true;
+    }
+}
+
+public class MoveAwayFromBall : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        context.MoveToBlockBall();
         return true;
     }
 }
@@ -204,6 +272,23 @@ public class MoveToInitPos : Node<Pawn>
     }
 }
 
+public class MoveToBlockBall : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        context.MoveToBlockBall();
+        return true;
+    }
+}
+
+public class DontMove : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        return true;
+    }
+}
+
 #endregion
 
 #region Behavior Tree conditions
@@ -231,7 +316,7 @@ public class HasStraightPathToBall : Node<Pawn>
 
     public override bool Update(Pawn context) => Physics.SphereCast(
             context.transform.position,
-            1f,
+            .5f,
             (Services.ball.position - context.transform.position).normalized,
             out RaycastHit hit
             ) &&
@@ -242,7 +327,7 @@ public class BallHasStraightPathToGoal : Node<Pawn>
 {
     public override bool Update(Pawn context) => Physics.SphereCast(
             Services.ball.transform.position,
-            1f,
+            .5f,
             (((context.isBlue) ? Services.SceneObjectIndex.blueGoal.position : Services.SceneObjectIndex.redGoal.position) - context.transform.position).normalized,
             out RaycastHit hit
             ) &&
@@ -278,9 +363,9 @@ public class BallIsBetweenMeAndEnemyGoal : Node<Pawn>
     public override bool Update(Pawn context)
     {
         Vector3 dir = (Services.ball.position - context.transform.position).normalized;
-        if (Physics.SphereCast(context.transform.position, 1f, dir, out RaycastHit hit1) && hit1.collider.CompareTag("Ball"))
+        if (Physics.SphereCast(context.transform.position, .5f, dir, out RaycastHit hit1) && hit1.collider.CompareTag("Ball"))
         {
-            if (Physics.SphereCast(Services.ball.position, 1f, dir, out RaycastHit hit2) && hit2.collider.CompareTag("Goal"))
+            if (Physics.SphereCast(Services.ball.position, .5f, dir, out RaycastHit hit2) && hit2.collider.CompareTag("Goal"))
             {
                 if ((hit2.collider.GetComponent<Goal>().isBlue && context.isBlue) || (!hit2.collider.GetComponent<Goal>().isBlue && !context.isBlue))
                     return true;
