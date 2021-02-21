@@ -31,6 +31,8 @@ public class Pawn : MonoBehaviour
     protected Rigidbody rb;
     protected Tree<Pawn> _tree;
 
+    private Vector3 _initPos;
+
     public bool isBlue;
 
     public BehaviorEnum behavior; // Set behavior at spawn.
@@ -40,6 +42,7 @@ public class Pawn : MonoBehaviour
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        _initPos = transform.position;
     }
 
     public void Destroy()
@@ -51,13 +54,26 @@ public class Pawn : MonoBehaviour
     {
         _tree = tree;
 
-        // aggressive
-        Tree<Pawn> aggressiveTree = new Tree<Pawn>
+        // Defensive
+        Tree<Pawn> defensiveTree = new Tree<Pawn>
+        (
+            new Selector<Pawn>
             (
                 new Sequence<Pawn>
-                ( 
-                );
-            );
+                (
+                    new BallIsOnMySideOfField(),
+                    new IAmOnCorrectSideOfBall(),
+                    new MoveTowardBall()
+                ),
+                new Sequence<Pawn>
+                (
+                    new BallIsOnMySideOfField(),
+                    new Not<Pawn>(new IAmOnCorrectSideOfBall()),
+                    new MoveToMySideOfField()
+                ),
+                new MoveToInitPos()
+            )
+        );
     }
 
     public void BehaviorTreeUpdate()
@@ -96,6 +112,31 @@ public class Pawn : MonoBehaviour
         Services.ball.AddForce(forceDirection, ForceMode.Impulse);
     }
 
+    private Vector2 TowardBall()
+    {
+        // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
+        Vector3 directionVector3D = Services.ball.position - transform.position;
+        Vector2 directionVector2D = new Vector2(directionVector3D.x, directionVector3D.z).normalized;
+        return directionVector2D;
+    }
+
+    private Vector2 TowardInitPos()
+    {
+        // This is meant to find the correct direction on the XZ plane, and maintain Y at 1, but I don't think this does exactly that.
+        Vector3 directionVector3D = _initPos - transform.position;
+        Vector2 directionVector2D = new Vector2(directionVector3D.x, directionVector3D.z).normalized;
+        return directionVector2D;
+    }
+
+    public void Move(Vector2 moveDirection)
+    {
+        // May be a better way than to make a new vector every time
+        Vector3 movementVector = new Vector3(moveDirection.x, 0, moveDirection.y) * movementForce * Time.fixedDeltaTime;
+
+        // Actually move
+        rb.AddForce(movementVector, ForceMode.VelocityChange);
+    }
+
     #endregion
 
     #region Events.
@@ -114,17 +155,56 @@ public class Pawn : MonoBehaviour
 
     #region Behavior Tree actions
 
-    public void Move(Vector2 moveDirection)
-    {
-        // May be a better way than to make a new vector every time
-        Vector3 movementVector = new Vector3(moveDirection.x, 0, moveDirection.y) * movementForce * Time.fixedDeltaTime;
+    public void MoveTowardBall() => Move(TowardBall());
 
-        // Actually move
-        rb.AddForce(movementVector, ForceMode.VelocityChange);
-    }
+    public void MoveToMySideOfField() => Move(isBlue ? new Vector2(-1, 0) : new Vector2(1, 0));
+
+    public void MoveToOtherSideOfField() => Move(isBlue ? new Vector2(1, 0) : new Vector2(-1, 0));
+
+    public void MoveToInitPos() => Move(TowardInitPos());
 
     #endregion
 }
+
+#region Behavior Tree actions
+
+public class MoveTowardBall : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        context.MoveTowardBall();
+        return true;
+    }
+}
+
+public class MoveToMySideOfField : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        context.MoveToMySideOfField();
+        return true;
+    }
+}
+
+public class MoveToOtherSideOfField : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        context.MoveToOtherSideOfField();
+        return true;
+    }
+}
+
+public class MoveToInitPos : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        context.MoveToInitPos();
+        return true;
+    }
+}
+
+#endregion
 
 #region Behavior Tree conditions
 
@@ -200,14 +280,19 @@ public class BallIsBetweenMeAndEnemyGoal : Node<Pawn>
         Vector3 dir = (Services.ball.position - context.transform.position).normalized;
         if (Physics.SphereCast(context.transform.position, 1f, dir, out RaycastHit hit1) && hit1.collider.CompareTag("Ball"))
         {
-            if (Physics.SphereCast( Services.ball.position, 1f, dir, out RaycastHit hit2) && hit2.collider.CompareTag("Goal"))
-            { 
+            if (Physics.SphereCast(Services.ball.position, 1f, dir, out RaycastHit hit2) && hit2.collider.CompareTag("Goal"))
+            {
                 if ((hit2.collider.GetComponent<Goal>().isBlue && context.isBlue) || (!hit2.collider.GetComponent<Goal>().isBlue && !context.isBlue))
                     return true;
             }
         }
         return false;
     }
+}
+
+public class BallIsOnMySideOfField : Node<Pawn>
+{
+    public override bool Update(Pawn context) => context.isBlue ? Services.ball.position.x < 0 : Services.ball.position.x > 0;
 }
 
 
