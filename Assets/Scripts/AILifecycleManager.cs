@@ -41,7 +41,8 @@ public class AILifecycleManager
         {
             // Move toward ball.
             if (!pawn.isPlayer)
-                pawn.Move(CalculateAIMovement(pawn));
+                pawn.BehaviorTreeUpdate();
+                //pawn.Move(CalculateAIMovement(pawn));
         }
     }
 

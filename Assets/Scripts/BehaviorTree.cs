@@ -75,6 +75,11 @@ namespace BehaviorTree
         }
     }
 
+    /* Select one child.
+     * Go through children from left to right looking for a successful node.
+     * If a node fails, it tries the next one.
+     * When successful, the node is completed and we can go back up the tree.
+     */
     public class Selector<T> : CompositeNode<T>
     {
         public Selector(params Node<T>[] children) : base(children) { }
@@ -89,6 +94,11 @@ namespace BehaviorTree
         }
     }
 
+    /* Checklist.
+     * Execute from left to right, until a node fails.
+     * If the node is successful, do the next one.
+     * If the node fails, go back up the tree.
+     */
     public class Sequence<T> : CompositeNode<T>
     {
         public Sequence(params Node<T>[] children) : base(children) { }

@@ -8,8 +8,13 @@ using BehaviorTree;
  * Date: 2/5/2021
  * Description: Class for each soccer player. Can be moved either by the player or by the AI system.
  */
- 
+
 public enum BehaviorEnum { Aggressive, Defensive, Afraid_of_ball, Goalie };
+// Aggressive always goes toward ball
+// Defensive tries to get between ball and goal
+// Afraid of ball will run away from the ball if it gets too close
+// Goalie is like a defensive player, but must stay within certain distance from goal
+// Irrational goes perpendicular to the vector of the ball to the goal?
 public class Pawn : MonoBehaviour
 {
     /* maybe make a struct like this?
@@ -45,6 +50,19 @@ public class Pawn : MonoBehaviour
     public void SetBehaviorTree(Tree<Pawn> tree)
     {
         _tree = tree;
+
+        // aggressive
+        Tree<Pawn> aggressiveTree = new Tree<Pawn>
+            (
+                new Sequence<Pawn>
+                ( 
+                );
+            );
+    }
+
+    public void BehaviorTreeUpdate()
+    {
+        _tree.Update(this);
     }
 
     #endregion
@@ -108,9 +126,9 @@ public class Pawn : MonoBehaviour
     #endregion
 }
 
-#region Behavior Tree nodes
+#region Behavior Tree conditions
 
-public class IsCloseToBall : BehaviorTree.Node<Pawn>
+public class IsCloseToBall : Node<Pawn>
 {
     private float _distance;
     private float _precision;
@@ -128,34 +146,69 @@ public class IsCloseToBall : BehaviorTree.Node<Pawn>
     }
 }
 
-public class HasStraightPathToBall : BehaviorTree.Node<Pawn>
+public class HasStraightPathToBall : Node<Pawn>
 {
 
-    public override bool Update(Pawn context)
-    {
-        return Physics.SphereCast(
+    public override bool Update(Pawn context) => Physics.SphereCast(
             context.transform.position,
             1f,
             (Services.ball.position - context.transform.position).normalized,
             out RaycastHit hit
             ) &&
             hit.collider.CompareTag("Ball");
-    }
 }
 
-public class BallHasStraightPathToGoal : BehaviorTree.Node<Pawn>
+public class BallHasStraightPathToGoal : Node<Pawn>
 {
-
-    public override bool Update(Pawn context)
-    {
-        return Physics.SphereCast(
+    public override bool Update(Pawn context) => Physics.SphereCast(
             Services.ball.transform.position,
             1f,
             (((context.isBlue) ? Services.SceneObjectIndex.blueGoal.position : Services.SceneObjectIndex.redGoal.position) - context.transform.position).normalized,
             out RaycastHit hit
             ) &&
-            hit.collider.CompareTag("Ball");
+            hit.collider.CompareTag("Goal");
+}
+
+public class BallIsInMyZone : Node<Pawn>
+{
+    private Vector3 _upperRight;
+    private Vector3 _lowerLeft;
+
+    public BallIsInMyZone(Vector3 ur, Vector3 ll)
+    {
+        _upperRight = ur;
+        _lowerLeft = ll;
+    }
+
+    public override bool Update(Pawn context)
+    {
+        Vector3 ballPos = Services.ball.position;
+        return ballPos.x <= _upperRight.x && ballPos.x >= _lowerLeft.x && ballPos.z <= _upperRight.z && ballPos.z >= _lowerLeft.z;
     }
 }
+
+// Meaning, if I am on the blue team, I am to the left of the ball.
+public class IAmOnCorrectSideOfBall : Node<Pawn>
+{
+    public override bool Update(Pawn context) => context.isBlue ? Services.ball.position.x > context.transform.position.x : Services.ball.position.x < context.transform.position.x;
+}
+
+public class BallIsBetweenMeAndEnemyGoal : Node<Pawn>
+{
+    public override bool Update(Pawn context)
+    {
+        Vector3 dir = (Services.ball.position - context.transform.position).normalized;
+        if (Physics.SphereCast(context.transform.position, 1f, dir, out RaycastHit hit1) && hit1.collider.CompareTag("Ball"))
+        {
+            if (Physics.SphereCast( Services.ball.position, 1f, dir, out RaycastHit hit2) && hit2.collider.CompareTag("Goal"))
+            { 
+                if ((hit2.collider.GetComponent<Goal>().isBlue && context.isBlue) || (!hit2.collider.GetComponent<Goal>().isBlue && !context.isBlue))
+                    return true;
+            }
+        }
+        return false;
+    }
+}
+
 
 #endregion

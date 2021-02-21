@@ -9,7 +9,7 @@ using UnityEngine;
  */
 public class Goal : MonoBehaviour
 {
-    [SerializeField] private bool isBlue = false;
+    public bool isBlue = false;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Ball"))
